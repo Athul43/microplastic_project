@@ -59,6 +59,16 @@ def analyze_data():
     rules['antecedents'] = rules['antecedents'].apply(lambda a: ', '.join(list(a)))
     rules['consequents'] = rules['consequents'].apply(lambda c: ', '.join(list(c)))
 
+    # --- 4. Harmful Item Analysis (New Section) ---
+    # Calculate the 75th percentile for each numeric column (food source)
+    percentile_75 = numeric_df.quantile(0.75)
+    
+    # Find items exceeding the 75th percentile for each row
+    harmful_items_df = numeric_df.apply(lambda x: x > percentile_75[x.name], axis=0)
+    harmful_items_summary = harmful_items_df.sum().sort_values(ascending=False)
+    harmful_items_summary = harmful_items_summary[harmful_items_summary > 0].reset_index()
+    harmful_items_summary.columns = ['Food Source', 'Number of High-Intake Samples']
+
     # --- 4. Visualization ---
     pca = PCA(n_components=2)
     principal_components = pca.fit_transform(scaled_features)
@@ -81,7 +91,8 @@ def analyze_data():
     results = {
         "cluster_analysis_html": cluster_analysis.to_html(classes='table table-striped', index=False),
         "association_rules_html": rules[['antecedents', 'consequents', 'support', 'confidence', 'lift']].to_html(classes='table table-striped', index=False),
-        "cluster_plot_url": f"data:image/png;base64,{img_base64}"
+        "cluster_plot_url": f"data:image/png;base64,{img_base64}",
+        "harmful_items_html": harmful_items_summary.to_html(classes='table table-striped', index=False)
     }
     
     return jsonify(results)

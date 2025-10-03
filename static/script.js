@@ -34,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Populate the result divs with data from the backend
             document.getElementById('clusterResults').innerHTML = data.cluster_analysis_html;
             document.getElementById('aprioriResults').innerHTML = data.association_rules_html;
+            document.getElementById('harmfulItemsResults').innerHTML = data.harmful_items_html;
             
             // Display the plot image
             const plotContainer = document.getElementById('plotResult');
