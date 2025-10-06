@@ -368,32 +368,41 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         
-        // Simple text-based chart since we don't have Chart.js
-        const chartContainer = document.getElementById('riskChart');
-        if (chartContainer) {
-            chartContainer.innerHTML = `
-                <div class="text-center">
-                    <div class="mb-3">
-                        <div style="display: inline-block; width: 60px; height: 60px; background: #dc3545; border-radius: 50%; line-height: 60px; color: white; font-weight: bold;">
-                            ${riskDist.high_risk}
-                        </div>
-                        <div class="small">High Risk</div>
-                    </div>
-                    <div class="mb-3">
-                        <div style="display: inline-block; width: 50px; height: 50px; background: #ffc107; border-radius: 50%; line-height: 50px; color: white; font-weight: bold;">
-                            ${riskDist.moderate_risk}
-                        </div>
-                        <div class="small">Moderate Risk</div>
-                    </div>
-                    <div class="mb-3">
-                        <div style="display: inline-block; width: 40px; height: 40px; background: #28a745; border-radius: 50%; line-height: 40px; color: white; font-weight: bold;">
-                            ${riskDist.low_risk}
-                        </div>
-                        <div class="small">Low Risk</div>
-                    </div>
-                </div>
-            `;
-        }
+        // Create pie chart with Chart.js
+        const ctx = document.getElementById('riskChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['High Risk', 'Moderate Risk', 'Low Risk'],
+                datasets: [{
+                    data: [riskDist.high_risk, riskDist.moderate_risk, riskDist.low_risk],
+                    backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+                    borderColor: ['#fff', '#fff', '#fff'],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const percentage = ((context.raw / total) * 100).toFixed(1);
+                                return context.label + ': ' + context.raw + ' (' + percentage + '%)';
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     function displayVisualization(plotUrl) {
